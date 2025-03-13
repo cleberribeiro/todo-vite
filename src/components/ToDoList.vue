@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref } from "vue";
+import { Check, X } from "lucide-vue-next";
 
 interface Task {
   id: number;
@@ -53,10 +54,10 @@ const saveTasks = () => {
         </span>
         <div class="space-x-2">
           <button @click="toggleTask(task.id)" class="text-green-500 hover:text-green-600">
-            ✔
+            <Check />
           </button>
           <button @click="removeTask(task.id)" class="text-red-500 hover:text-red-600">
-            ✖
+            <X />
           </button>
         </div>
       </li>
