@@ -64,6 +64,7 @@ const removeTask = (id: number) => {
 const saveTasks = () => {
   localStorage.setItem("tasks", JSON.stringify(tasks.value));
 };
+
 </script>
 
 <template>
