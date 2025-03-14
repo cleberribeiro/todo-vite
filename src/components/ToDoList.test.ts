@@ -13,6 +13,6 @@ describe('ToDoList Component', () => {
     const input = wrapper.find('input');
     await input.setValue('New Todo');
     await wrapper.find('button').trigger('click.prevent');
-    expect(wrapper.findAll('ul > li')).toHaveLength(1);
+    expect(wrapper.findAll('li')).toHaveLength(1);
   });
 });
