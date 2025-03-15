@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { Check, X } from "lucide-vue-next";
 
 interface Task {
@@ -7,6 +7,27 @@ interface Task {
   text: string;
   completed: boolean;
 }
+
+const darkMode = ref(localStorage.getItem("theme") === "dark");
+
+/**
+ * Watches for changes in the darkMode state.
+ * When darkMode changes:
+ * - If set to true, adds 'dark' class to the document root element and stores 'dark' theme in localStorage
+ * - If set to false, removes 'dark' class from the document root element and stores 'light' theme in localStorage
+ * 
+ * @param {Ref<boolean>} darkMode - Reactive reference to the dark mode state
+ * @param {Function} callback - Function executed when darkMode value changes
+ */
+watch(darkMode, (newValue) => {
+  if (newValue) {
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+    localStorage.setItem("theme", "light");
+  }
+});
 
 /**
  * Tasks data management
@@ -68,7 +89,19 @@ const saveTasks = () => {
 </script>
 
 <template>
-  <div class="max-w-lg w-full mx-auto p-4 sm:p-6 md:p-8 bg-white shadow-lg rounded-lg dark:bg-gray-800 transition-all">
+  
+  <div class="fixed top-4 right-4 z-50">
+    <!-- Dark Mode Button -->
+    <button @click="darkMode = !darkMode"
+      class="bg-gray-200 dark:bg-gray-700 p-2 rounded-full transition transform hover:scale-110 shadow-md">
+      <span v-if="darkMode" class="text-yellow-400">🌙</span>
+      <span v-else class="text-gray-800">☀️</span>
+    </button>
+  </div>
+
+  <div id="main" class="max-w-lg w-full mx-auto p-4 sm:p-6 md:p-8 bg-white shadow-lg rounded-lg dark:bg-gray-800 transition-all">
+
+
     <h1 class="text-2xl font-bold text-center text-gray-900 dark:text-white">ToDo List</h1>
 
     <div class="flex mt-4">
@@ -87,10 +120,13 @@ const saveTasks = () => {
           
         Both elements work together to collect user input and add new tasks to the list.
       -->
-      <input v-model="newTask" @keyup.enter="addTask"
+      <input 
+        data-test="test-inpt-task" 
+        v-model="newTask" 
+        @keyup.enter="addTask"
         class="flex-1 p-3 border border-gray-300 rounded-l-md dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        placeholder="Nova tarefa..." />
-      <button @click="addTask" class="bg-blue-500 text-white px-4 py-3 rounded-r-md hover:bg-blue-600 transition">
+        placeholder="New Task..." />
+      <button data-test="test-btn-add" @click="addTask" class="bg-blue-500 text-white px-4 py-3 rounded-r-md hover:bg-blue-600 transition">
         Add
       </button>
     </div>
@@ -118,7 +154,7 @@ const saveTasks = () => {
         - Supports dark mode with dark: prefixed classes
         - Uses flex layout for alignment of task text and action buttons
       -->
-      <li v-for="task in tasks" :key="task.id"
+      <li data-test="test-li-tasks" v-for="task in tasks" :key="task.id"
         class="flex items-center justify-between bg-gray-100 p-3 rounded-md shadow-md dark:bg-gray-700 transition-all duration-300">
         <span :class="{ 'line-through text-gray-500': task.completed }"
           class="flex-1 text-gray-900 dark:text-white text-lg">
@@ -129,7 +165,7 @@ const saveTasks = () => {
             class="text-green-500 hover:text-green-600 transition transform hover:scale-110">
             <Check />
           </button>
-          <button @click="removeTask(task.id)"
+          <button :data-test="'test-btn-remove-' + task.id" @click="removeTask(task.id)"
             class="text-red-500 hover:text-red-600 transition transform hover:scale-110">
             <X />
           </button>
@@ -141,14 +177,8 @@ const saveTasks = () => {
 </template>
 
 <style>
-/* Modo escuro automático */
-@media (prefers-color-scheme: dark) {
-  html {
-    background-color: #1a202c;
-  }
-}
 
-/* Transição para adicionar/remover tarefas */
+/* Transition for adding/removing tasks */
 .task-list-enter-active,
 .task-list-leave-active {
   transition: all 0.3s ease-out;
